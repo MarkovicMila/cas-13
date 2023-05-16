@@ -1,63 +1,66 @@
-from klasa import *
 from tkinter import *
-
+from klasa import *
 
 
 root=Tk()
-
-
-
-
+root.title("Posiljke")
 def dodaj_posiljku():
-    t=Toplevel()
-    Label(t,text='posiljalac').grid(row=0,column=0)
-    Label(t,text='primalac').grid(row=1,column=0)
-    
-    posiljalac=Entry(t)
-    posiljalac.grid(row=0,column=1,columnspan=2)
-    primalac=Entry(t)
-    primalac.grid(row=1,column=1,columnspan=2)
-    status='poslato'
+    t=Toplevel(root)
 
-    button_dodaj=Button(t,text='Dodaj',command=lambda:P.dodaj_posiljku(posiljalac.get(),primalac.get(),status))
-    button_dodaj.grid(row=2,column=0,columnspan=2)
+    Label(t,text="Posiljalac").grid(row=0,column=0)
+    Label(t,text="Primalac").grid(row=1,column=0)
+   
+    e1_t=Entry(t)
+    e1_t.grid(row=0,column=1,columnspan=2)
+    e2_t=Entry(t)
+    e2_t.grid(row=1,column=1,columnspan=2)
+    
+    b_t=Button(t,text="Dodaj posiljku",command=lambda:p.dodaj_posiljku(e1_t.get(),e2_t.get()))
+    b_t.grid(row=2,column=0,columnspan=2)
 
 def promeni_status():
-    t=Toplevel()
-    var2=StringVar(t)
-    var2.set('poslato') # u zagradi treba da stoji aktivan status izabramne posiljke
-    r1=Radiobutton(t,text='poslato',variable=var2,value='poslato')
+    t=Toplevel(root)
+    
+    var1 = StringVar(t) 
+    var1.set("poslato") 
+    r1=Radiobutton(t, text="poslato", variable=var1, value="poslato")
+    r2=Radiobutton(t, text="otpremljeno", variable=var1, value="otpremljeno")
+    r3=Radiobutton(t, text="dostavljeno", variable=var1, value="dostavljeno")
+
     r1.grid(row=0,column=0)
-    r2=Radiobutton(t,text='otpremljeno',variable=var2,value='otpremljeno')
-    r2.grid(row=0,column=1)
-    r3=Radiobutton(t,text='dostavljeno',variable=var2,value='dostavljeno')
-    r3.grid(row=0,column=2)
+    r2.grid(row=1,column=0)
+    r3.grid(row=2,column=0)
 
-    button_promeni=Button(t,text='Promeni status',command=lambda:P.promeni_status(var2.get()))
-    button_promeni.grid(row=1,column=1)
-
+    b_e=Button(t,text="Promeni status",command=lambda:p.promeni_status(var1.get()))
+    b_e.grid(row=3,column=0)
+    
 def export():
-    t=Toplevel()
-    var2=StringVar(t)
-    var2.set('excel') 
-    r1=Radiobutton(t,text='excel',variable=var2,value='excel')
-    r1.grid(row=0,column=0)
-    r2=Radiobutton(t,text='csv',variable=var2,value='csv')
-    r2.grid(row=0,column=1)
+    t=Toplevel(root)
+    
+    b_t1=Button(t,text="Excel",command=lambda:p.export_excel())
+    b_t1.grid(row=0,column=1)
+    
+    b_t2=Button(t,text="CSV",command=lambda:p.export_csv())
+    b_t2.grid(row=0,column=2)
 
-    button_export=Button(t,text='Export',command=lambda:P.export(var2.get())) # P.export(excel/csv) treba funcija da prima jednu od dve opcije
-    button_export.grid(row=0,column=2)
-
-button_dodaj=Button(root,text='Dodaj posiljku',height=3,command=lambda:dodaj_posiljku())
-button_promeni=Button(root,text='Promeni status',height=3,command=lambda:promeni_status())
-button_export=Button(root,text='Export',height=3,command=lambda:export())
-
-button_dodaj.grid(row=0,column=1,rowspan=3)
-button_promeni.grid(row=2,column=1,rowspan=3)
-button_export.grid(row=6,column=1,rowspan=3)
-
-
+# list=p.listbox()
+# list=pd.DataFrame(list)
 listbox=Listbox(root)
-listbox.grid(row=0,column=0,rowspan=9) # columnspan=len(posiljke)=koliko ima redova u db iz postgresa
+# for i in range(len(list)):
+#     listbox.insert(i+1,list.loc[0:len(list),('broj_posiljke','posiljalac','primalac','status')])
+#     i+=1
+listbox.grid(row=0,column=0,rowspan=9) 
+
+
+
+b_dodaj=Button(root,text="Dodaj posiljku",height=3,command=lambda:dodaj_posiljku())
+b_dodaj.grid(row=0,column=1,rowspan=3)
+
+b_promeni=Button(root,text="Promeni status",height=3,command=lambda:promeni_status())
+b_promeni.grid(row=3,column=1,rowspan=3)
+
+b_export=Button(root,text="Export",height=3,command=lambda:export())
+b_export.grid(row=6,column=1,rowspan=3)
+
 
 mainloop()

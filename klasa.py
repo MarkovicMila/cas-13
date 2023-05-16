@@ -1,79 +1,102 @@
-import openpyxl as op
 import psycopg2 as pg
+import openpyxl as op
 import pandas as pd
-
 
 class Posiljke:
     def __init__(self):
-        self.upit=''
-        self.sql_result=None
-
-    def kreiraj_upit(self,upit):
-        self.upit=upit
-
-    def get_sql(self):
+        pass
+    def dodaj_posiljku(self,posiljalac,primalac):
         try:
             con=pg.connect(
                 database='POSTA',
-                user='postgres',
-                host='localport',
                 port='5432',
+                host='localhost',
+                user='postgres',
                 password='itoip'
             )
+            df=pd.read_sql('SELECT * FROM POSILJKE',con=con)
             cursor=con.cursor()
-            cursor.execute(self.upit)
-            self.sql_result=cursor.fetchall()
-        except(Exception,pg.Error) as e:
-            print('Error: ',e)
-        finally:
-            con.close()
-            cursor.close()
-    
-    def export(self,gde):
-        if gde=='excel':
-            wb=op.Workbook()
-            ws=wb.active()
-            
-            ws['A1']='posiljalac'
-            ws['B1']='primalac'
-            ws['C1']='status'
-
-            for i in range(2,len(self.sql_result)+2):
-                ws.cell(row=i,column=1).value=self.sql_result[i-2][0]
-                ws.cell(row=i,column=2).value=self.sql_result[i-2][1]
-                ws.cell(row=i,column=3).value=self.sql_result[i-2][2]
-
-            wb.save(filename='Export excel.xlsx')
-            wb.close()
-            return 'Excel file created successfully!'
-        elif gde=='csv':
-            dt=pd.DataFrame(self.sql_result)
-            dt.to_csv('Export csv',index=False)
-            return 'CSV file created successfully!'
-        else:
-            return 'Fail! No file created!'
-        
-    def dodaj_posiljku(self,posiljalac,primalac,status):
-        try:
-            con=pg.connect(
-                database='POSTA',
-                user='postgres',
-                host='localport',
-                port='5432',
-                password='itoip'
-            )
-            cursor=con.cursor()
-            com="INSERT INTO POSILJKE VALUES ('{}','{}','{}')".format(posiljalac,primalac,status)
-            cursor.execute(com)
+            l='''INSERT INTO POSILJKE VALUES ({},'{}','{}','poslato');'''.format(len(df)+1,posiljalac,primalac)
+            cursor.execute(l)
             con.commit()
         except(Exception,pg.Error) as e:
             print('Error: ',e)
         finally:
             con.close()
             cursor.close()
+    def export_excel(self):
+        try:
+            con=pg.connect(
+                database='POSTA',
+                port='5432',
+                host='localhost',
+                user='postgres',
+                password='itoip'
+            )
+            df=pd.read_sql('SELECT * FROM POSILJKE',con=con)
+            df.to_excel('Excel.xlsx', index=False)
+        except(Exception,pg.Error) as e:
+            print('Error: ',e)
+        finally:
+            con.close()
+    def export_csv(self):
+        try:
+            con=pg.connect(
+                database='POSTA',
+                port='5432',
+                host='localhost',
+                user='postgres',
+                password='itoip'
+            )
+            df=pd.read_sql('SELECT * FROM POSILJKE',con=con)
+            df.to_csv('CSV.csv', index=False)
+        except(Exception,pg.Error) as e:
+            print('Error: ',e)
+        finally:
+            con.close()
+    def promeni_status(self,status):
+        try:
+            con=pg.connect(
+                database='POSTA',
+                user='postgres',
+                port='5432',
+                password='itoip',
+                host='localhost'
+            )
+            cursor=con.cursor()
 
-    def promeni_status(self):
-        pass
+            com='''
+            UPDATE POSILJKE
+            SET STATUS='{}'
+            '''.format(status)
+            cursor.execute(com)
+            print("Table updated successfully")
+            con.commit()
 
+        except (Exception,pg.Error) as e:
+            print("Error:",e)
 
-P=Posiljke()
+        finally:
+            cursor.close()
+            con.close()
+    # def listbox(self):
+    #     try:
+    #         con=pg.connect(
+    #             database='POSTA',
+    #             port='5432',
+    #             host='localhost',
+    #             user='postgres',
+    #             password='itoip'
+    #         )
+    #         df=pd.read_sql('SELECT * FROM POSILJKE',con=con)
+    #         return df
+    #     except(Exception,pg.Error) as e:
+    #         print('Error: ',e)
+    #     finally:
+    #         con.close()
+
+p=Posiljke()
+# p.export_excel()
+# p.export_csv()
+# p.dodaj_posiljku('Petar Petrovic','Marko Markovic')
+# print(p.listbox())
